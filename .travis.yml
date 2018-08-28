@@ -11,6 +11,7 @@ node_js:
 cache:
   directories:
     - "node_modules"
+
 services:
   - mysql
 
@@ -19,5 +20,6 @@ script:
   - npm run test
 
 before_install:
+  - if [[ $TRAVIS_OS_NAME == "osx" ]]; then brew update > /dev/null && brew install mariadb && mysql.server start; fi
   - mysql -e 'CREATE USER 'xud'@'localhost'';
   - mysql -e 'GRANT ALL PRIVILEGES ON `xud\_%`.* TO `xud`@`%`;'
