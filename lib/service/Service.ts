@@ -1,6 +1,6 @@
 import Logger from '../Logger';
 import Pool from '../p2p/Pool';
-import OrderBook from '../orderbook/OrderBook';
+import OrderBook, { OrderArrays } from '../orderbook/OrderBook';
 import LndClient, { LndInfo } from '../lndclient/LndClient';
 import RaidenClient, { TokenSwapPayload, RaidenInfo } from '../raidenclient/RaidenClient';
 import { EventEmitter } from 'events';
@@ -13,7 +13,7 @@ import Swaps from '../swaps/Swaps';
 /**
  * The components required by the API service layer.
  */
-export type ServiceComponents = {
+type ServiceComponents = {
   orderBook: OrderBook;
   lndBtcClient: LndClient;
   lndLtcClient: LndClient;
@@ -24,6 +24,11 @@ export type ServiceComponents = {
   swaps: Swaps; // TODO: remove once we remove the executeSwap demo call
   /** The function to be called to shutdown the parent process */
   shutdown: () => void;
+};
+
+type OrderTypes = {
+  peerOrders: OrderArrays,
+  ownOrders: OrderArrays,
 };
 
 type XudInfo = {
@@ -89,12 +94,11 @@ class Service extends EventEmitter {
   /*
    * Cancel placed order from the orderbook.
    */
-  public cancelOrder = async (args: { orderId: string, pairId: string }) => {
-    const { orderId, pairId } = args;
+  public cancelOrder = async (args: { orderId: string }) => {
+    const { orderId } = args;
     argChecks.HAS_ORDER_ID(args);
-    argChecks.HAS_PAIR_ID(args);
 
-    this.orderBook.removeOwnOrderByLocalId(pairId, orderId);
+    this.orderBook.removeOwnOrderByLocalId(orderId);
   }
 
   public channelBalance = (args: { currency: string }) => {
@@ -240,17 +244,27 @@ class Service extends EventEmitter {
   }
 
   /**
-   * Get a list of standing orders from the order book for a specified trading pair.
+   * Get a list of standing orders from the order book for all pairs or a specified trading pair.
    */
   public getOrders = (args: { pairId: string, maxResults: number }) => {
     const { pairId, maxResults } = args;
-    argChecks.HAS_PAIR_ID(args);
     argChecks.MAX_RESULTS_NOT_NEGATIVE(args);
 
-    const result = {
-      peerOrders: this.orderBook.getPeerOrders(pairId, maxResults),
-      ownOrders: this.orderBook.getOwnOrders(pairId, maxResults),
+    const result = new Map<string, OrderTypes>();
+    const getOrderTypes = (pairId: string) => {
+      return {
+        peerOrders: this.orderBook.getPeerOrders(pairId, maxResults),
+        ownOrders: this.orderBook.getOwnOrders(pairId, maxResults),
+      };
     };
+
+    if (pairId) {
+      result.set(pairId, getOrderTypes(pairId));
+    } else {
+      this.orderBook.pairIds.forEach((pairId) => {
+        result.set(pairId, getOrderTypes(pairId));
+      });
+    }
 
     return result;
   }
@@ -259,7 +273,7 @@ class Service extends EventEmitter {
    * Get the list of the order book's available pairs.
    * @returns A list of available trading pairs
    */
-  public getPairs = () => {
+  public listPairs = () => {
     return this.orderBook.pairs;
   }
 
@@ -377,3 +391,4 @@ class Service extends EventEmitter {
   }
 }
 export default Service;
+export { ServiceComponents, OrderTypes };

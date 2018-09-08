@@ -1,7 +1,7 @@
 /* tslint:disable no-floating-promises no-null-keyword */
 import grpc, { status } from 'grpc';
 import Logger from '../Logger';
-import Service from '../service/Service';
+import Service, { OrderTypes } from '../service/Service';
 import * as xudrpc from '../proto/xudrpc_pb';
 import { ResolveRequest, ResolveResponse } from '../proto/lndrpc_pb';
 import { StampedPeerOrder, StampedOrder, StampedOwnOrder } from '../types/orders';
@@ -214,8 +214,14 @@ class GrpcService {
         return orders;
       };
 
-      response.setOwnOrders(getOrders(getOrdersResponse.ownOrders));
-      response.setPeerOrders(getOrders(getOrdersResponse.peerOrders));
+      const ordersMap = response.getOrdersMap();
+      getOrdersResponse.forEach((orders, pairId) => {
+        const orderTypes = new xudrpc.OrderTypes();
+        orderTypes.setPeerOrders(getOrders(orders.peerOrders));
+        orderTypes.setOwnOrders(getOrders(orders.ownOrders));
+
+        ordersMap.set(pairId, orderTypes);
+      });
 
       callback(null, response);
     } catch (err) {
@@ -224,15 +230,15 @@ class GrpcService {
   }
 
   /**
-   * See [[Service.getPairs]]
+   * See [[Service.listPairs]]
    */
-  public getPairs: grpc.handleUnaryCall<xudrpc.GetPairsRequest, xudrpc.GetPairsResponse> = (_, callback) => {
+  public listPairs: grpc.handleUnaryCall<xudrpc.ListPairsRequest, xudrpc.ListPairsResponse> = (_, callback) => {
     try {
-      const getPairsResponse = this.service.getPairs();
-      const response = new xudrpc.GetPairsResponse();
+      const listPairsResponse = this.service.listPairs();
+      const response = new xudrpc.ListPairsResponse();
 
       const pairs: xudrpc.Pair[] = [];
-      getPairsResponse.forEach((pairInstance) => {
+      listPairsResponse.forEach((pairInstance) => {
         const pair = new xudrpc.Pair();
         pair.setBaseCurrency(pairInstance.baseCurrency);
         pair.setId(pairInstance.id);

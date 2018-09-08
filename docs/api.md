@@ -18,14 +18,16 @@
     - [GetInfoResponse](#xudrpc.GetInfoResponse)
     - [GetOrdersRequest](#xudrpc.GetOrdersRequest)
     - [GetOrdersResponse](#xudrpc.GetOrdersResponse)
-    - [GetPairsRequest](#xudrpc.GetPairsRequest)
-    - [GetPairsResponse](#xudrpc.GetPairsResponse)
+    - [GetOrdersResponse.OrdersEntry](#xudrpc.GetOrdersResponse.OrdersEntry)
+    - [ListPairsRequest](#xudrpc.ListPairsRequest)
+    - [ListPairsResponse](#xudrpc.ListPairsResponse)
     - [ListPeersRequest](#xudrpc.ListPeersRequest)
     - [ListPeersResponse](#xudrpc.ListPeersResponse)
     - [LndChannels](#xudrpc.LndChannels)
     - [LndInfo](#xudrpc.LndInfo)
     - [Order](#xudrpc.Order)
     - [OrderMatch](#xudrpc.OrderMatch)
+    - [OrderTypes](#xudrpc.OrderTypes)
     - [Orders](#xudrpc.Orders)
     - [OrdersCount](#xudrpc.OrdersCount)
     - [Pair](#xudrpc.Pair)
@@ -66,7 +68,6 @@
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | order_id | [string](#string) |  | The local id of the order to cancel |
-| pair_id | [string](#string) |  | The trading pair that the order to cancel is for |
 
 
 
@@ -252,27 +253,42 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| peer_orders | [Orders](#xudrpc.Orders) |  | A list of peer orders |
-| own_orders | [Orders](#xudrpc.Orders) |  | A list of orders placed locally |
+| orders | [GetOrdersResponse.OrdersEntry](#xudrpc.GetOrdersResponse.OrdersEntry) | repeated | A map between a pair and its orders |
 
 
 
 
 
 
-<a name="xudrpc.GetPairsRequest"></a>
+<a name="xudrpc.GetOrdersResponse.OrdersEntry"></a>
 
-### GetPairsRequest
-
-
+### GetOrdersResponse.OrdersEntry
 
 
 
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| key | [string](#string) |  |  |
+| value | [OrderTypes](#xudrpc.OrderTypes) |  |  |
 
 
-<a name="xudrpc.GetPairsResponse"></a>
 
-### GetPairsResponse
+
+
+
+<a name="xudrpc.ListPairsRequest"></a>
+
+### ListPairsRequest
+
+
+
+
+
+
+
+<a name="xudrpc.ListPairsResponse"></a>
+
+### ListPairsResponse
 
 
 
@@ -380,6 +396,22 @@
 | ----- | ---- | ----- | ----------- |
 | maker | [Order](#xudrpc.Order) |  |  |
 | taker | [Order](#xudrpc.Order) |  |  |
+
+
+
+
+
+
+<a name="xudrpc.OrderTypes"></a>
+
+### OrderTypes
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| peer_orders | [Orders](#xudrpc.Orders) |  | A list of peer orders |
+| own_orders | [Orders](#xudrpc.Orders) |  | A list of orders placed locally |
 
 
 
@@ -617,13 +649,13 @@
 | Disconnect | [DisconnectRequest](#xudrpc.DisconnectRequest) | [DisconnectResponse](#xudrpc.DisconnectResponse) | Disconnect from a connected peer XU node. |
 | ExecuteSwap | [ExecuteSwapRequest](#xudrpc.ExecuteSwapRequest) | [ExecuteSwapResponse](#xudrpc.ExecuteSwapResponse) | Execute an atomic swap |
 | GetInfo | [GetInfoRequest](#xudrpc.GetInfoRequest) | [GetInfoResponse](#xudrpc.GetInfoResponse) | Get general information about this Exchange Union node. |
-| GetPairs | [GetPairsRequest](#xudrpc.GetPairsRequest) | [GetPairsResponse](#xudrpc.GetPairsResponse) | Get the list of the order book&#39;s available pairs. |
+| ListPairs | [ListPairsRequest](#xudrpc.ListPairsRequest) | [ListPairsResponse](#xudrpc.ListPairsResponse) | Get the list of the order book&#39;s available pairs. |
 | GetOrders | [GetOrdersRequest](#xudrpc.GetOrdersRequest) | [GetOrdersResponse](#xudrpc.GetOrdersResponse) | Get a list of standing orders from the order book. |
 | ListPeers | [ListPeersRequest](#xudrpc.ListPeersRequest) | [ListPeersResponse](#xudrpc.ListPeersResponse) | Get a list of connected peers. |
 | PlaceOrder | [PlaceOrderRequest](#xudrpc.PlaceOrderRequest) | [PlaceOrderResponse](#xudrpc.PlaceOrderResponse) | Add an order to the order book. If price is zero or unspecified a market order will get added. |
 | Shutdown | [ShutdownRequest](#xudrpc.ShutdownRequest) | [ShutdownResponse](#xudrpc.ShutdownResponse) | Begin shutting down xud. |
-| SubscribePeerOrders | [SubscribePeerOrdersRequest](#xudrpc.SubscribePeerOrdersRequest) | [SubscribePeerOrdersResponse](#xudrpc.SubscribePeerOrdersResponse) stream | Subscribe to peer order events. |
-| SubscribeSwaps | [SubscribeSwapsRequest](#xudrpc.SubscribeSwapsRequest) | [SubscribeSwapsResponse](#xudrpc.SubscribeSwapsResponse) stream | Subscribe executed swaps. |
+| SubscribePeerOrders | [SubscribePeerOrdersRequest](#xudrpc.SubscribePeerOrdersRequest) | [SubscribePeerOrdersResponse](#xudrpc.SubscribePeerOrdersResponse) | Subscribe to peer order events. |
+| SubscribeSwaps | [SubscribeSwapsRequest](#xudrpc.SubscribeSwapsRequest) | [SubscribeSwapsResponse](#xudrpc.SubscribeSwapsResponse) | Subscribe executed swaps. |
 
  
 

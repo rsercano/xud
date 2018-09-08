@@ -14,7 +14,7 @@ interface IXudService extends grpc.ServiceDefinition<grpc.UntypedServiceImplemen
     disconnect: IXudService_IDisconnect;
     executeSwap: IXudService_IExecuteSwap;
     getInfo: IXudService_IGetInfo;
-    getPairs: IXudService_IGetPairs;
+    listPairs: IXudService_IListPairs;
     getOrders: IXudService_IGetOrders;
     listPeers: IXudService_IListPeers;
     placeOrder: IXudService_IPlaceOrder;
@@ -77,14 +77,14 @@ interface IXudService_IGetInfo extends grpc.MethodDefinition<xudrpc_pb.GetInfoRe
     responseSerialize: grpc.serialize<xudrpc_pb.GetInfoResponse>;
     responseDeserialize: grpc.deserialize<xudrpc_pb.GetInfoResponse>;
 }
-interface IXudService_IGetPairs extends grpc.MethodDefinition<xudrpc_pb.GetPairsRequest, xudrpc_pb.GetPairsResponse> {
-    path: string; // "/xudrpc.Xud/GetPairs"
+interface IXudService_IListPairs extends grpc.MethodDefinition<xudrpc_pb.ListPairsRequest, xudrpc_pb.ListPairsResponse> {
+    path: string; // "/xudrpc.Xud/ListPairs"
     requestStream: boolean; // false
     responseStream: boolean; // false
-    requestSerialize: grpc.serialize<xudrpc_pb.GetPairsRequest>;
-    requestDeserialize: grpc.deserialize<xudrpc_pb.GetPairsRequest>;
-    responseSerialize: grpc.serialize<xudrpc_pb.GetPairsResponse>;
-    responseDeserialize: grpc.deserialize<xudrpc_pb.GetPairsResponse>;
+    requestSerialize: grpc.serialize<xudrpc_pb.ListPairsRequest>;
+    requestDeserialize: grpc.deserialize<xudrpc_pb.ListPairsRequest>;
+    responseSerialize: grpc.serialize<xudrpc_pb.ListPairsResponse>;
+    responseDeserialize: grpc.deserialize<xudrpc_pb.ListPairsResponse>;
 }
 interface IXudService_IGetOrders extends grpc.MethodDefinition<xudrpc_pb.GetOrdersRequest, xudrpc_pb.GetOrdersResponse> {
     path: string; // "/xudrpc.Xud/GetOrders"
@@ -150,7 +150,7 @@ export interface IXudServer {
     disconnect: grpc.handleUnaryCall<xudrpc_pb.DisconnectRequest, xudrpc_pb.DisconnectResponse>;
     executeSwap: grpc.handleUnaryCall<xudrpc_pb.ExecuteSwapRequest, xudrpc_pb.ExecuteSwapResponse>;
     getInfo: grpc.handleUnaryCall<xudrpc_pb.GetInfoRequest, xudrpc_pb.GetInfoResponse>;
-    getPairs: grpc.handleUnaryCall<xudrpc_pb.GetPairsRequest, xudrpc_pb.GetPairsResponse>;
+    listPairs: grpc.handleUnaryCall<xudrpc_pb.ListPairsRequest, xudrpc_pb.ListPairsResponse>;
     getOrders: grpc.handleUnaryCall<xudrpc_pb.GetOrdersRequest, xudrpc_pb.GetOrdersResponse>;
     listPeers: grpc.handleUnaryCall<xudrpc_pb.ListPeersRequest, xudrpc_pb.ListPeersResponse>;
     placeOrder: grpc.handleUnaryCall<xudrpc_pb.PlaceOrderRequest, xudrpc_pb.PlaceOrderResponse>;
@@ -178,9 +178,9 @@ export interface IXudClient {
     getInfo(request: xudrpc_pb.GetInfoRequest, callback: (error: Error | null, response: xudrpc_pb.GetInfoResponse) => void): grpc.ClientUnaryCall;
     getInfo(request: xudrpc_pb.GetInfoRequest, metadata: grpc.Metadata, callback: (error: Error | null, response: xudrpc_pb.GetInfoResponse) => void): grpc.ClientUnaryCall;
     getInfo(request: xudrpc_pb.GetInfoRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: Error | null, response: xudrpc_pb.GetInfoResponse) => void): grpc.ClientUnaryCall;
-    getPairs(request: xudrpc_pb.GetPairsRequest, callback: (error: Error | null, response: xudrpc_pb.GetPairsResponse) => void): grpc.ClientUnaryCall;
-    getPairs(request: xudrpc_pb.GetPairsRequest, metadata: grpc.Metadata, callback: (error: Error | null, response: xudrpc_pb.GetPairsResponse) => void): grpc.ClientUnaryCall;
-    getPairs(request: xudrpc_pb.GetPairsRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: Error | null, response: xudrpc_pb.GetPairsResponse) => void): grpc.ClientUnaryCall;
+    listPairs(request: xudrpc_pb.ListPairsRequest, callback: (error: Error | null, response: xudrpc_pb.ListPairsResponse) => void): grpc.ClientUnaryCall;
+    listPairs(request: xudrpc_pb.ListPairsRequest, metadata: grpc.Metadata, callback: (error: Error | null, response: xudrpc_pb.ListPairsResponse) => void): grpc.ClientUnaryCall;
+    listPairs(request: xudrpc_pb.ListPairsRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: Error | null, response: xudrpc_pb.ListPairsResponse) => void): grpc.ClientUnaryCall;
     getOrders(request: xudrpc_pb.GetOrdersRequest, callback: (error: Error | null, response: xudrpc_pb.GetOrdersResponse) => void): grpc.ClientUnaryCall;
     getOrders(request: xudrpc_pb.GetOrdersRequest, metadata: grpc.Metadata, callback: (error: Error | null, response: xudrpc_pb.GetOrdersResponse) => void): grpc.ClientUnaryCall;
     getOrders(request: xudrpc_pb.GetOrdersRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: Error | null, response: xudrpc_pb.GetOrdersResponse) => void): grpc.ClientUnaryCall;
@@ -219,9 +219,9 @@ export class XudClient extends grpc.Client implements IXudClient {
     public getInfo(request: xudrpc_pb.GetInfoRequest, callback: (error: Error | null, response: xudrpc_pb.GetInfoResponse) => void): grpc.ClientUnaryCall;
     public getInfo(request: xudrpc_pb.GetInfoRequest, metadata: grpc.Metadata, callback: (error: Error | null, response: xudrpc_pb.GetInfoResponse) => void): grpc.ClientUnaryCall;
     public getInfo(request: xudrpc_pb.GetInfoRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: Error | null, response: xudrpc_pb.GetInfoResponse) => void): grpc.ClientUnaryCall;
-    public getPairs(request: xudrpc_pb.GetPairsRequest, callback: (error: Error | null, response: xudrpc_pb.GetPairsResponse) => void): grpc.ClientUnaryCall;
-    public getPairs(request: xudrpc_pb.GetPairsRequest, metadata: grpc.Metadata, callback: (error: Error | null, response: xudrpc_pb.GetPairsResponse) => void): grpc.ClientUnaryCall;
-    public getPairs(request: xudrpc_pb.GetPairsRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: Error | null, response: xudrpc_pb.GetPairsResponse) => void): grpc.ClientUnaryCall;
+    public listPairs(request: xudrpc_pb.ListPairsRequest, callback: (error: Error | null, response: xudrpc_pb.ListPairsResponse) => void): grpc.ClientUnaryCall;
+    public listPairs(request: xudrpc_pb.ListPairsRequest, metadata: grpc.Metadata, callback: (error: Error | null, response: xudrpc_pb.ListPairsResponse) => void): grpc.ClientUnaryCall;
+    public listPairs(request: xudrpc_pb.ListPairsRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: Error | null, response: xudrpc_pb.ListPairsResponse) => void): grpc.ClientUnaryCall;
     public getOrders(request: xudrpc_pb.GetOrdersRequest, callback: (error: Error | null, response: xudrpc_pb.GetOrdersResponse) => void): grpc.ClientUnaryCall;
     public getOrders(request: xudrpc_pb.GetOrdersRequest, metadata: grpc.Metadata, callback: (error: Error | null, response: xudrpc_pb.GetOrdersResponse) => void): grpc.ClientUnaryCall;
     public getOrders(request: xudrpc_pb.GetOrdersRequest, metadata: grpc.Metadata, options: Partial<grpc.CallOptions>, callback: (error: Error | null, response: xudrpc_pb.GetOrdersResponse) => void): grpc.ClientUnaryCall;

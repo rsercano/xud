@@ -52,7 +52,7 @@ service Xud {
   }
   
   /* Get the list of the order book's available pairs. */
-  rpc GetPairs(GetPairsRequest) returns (GetPairsResponse) {
+  rpc ListPairs(ListPairsRequest) returns (ListPairsResponse) {
     option (google.api.http) = {
       get: "/v1/pairs"
     };
@@ -119,8 +119,6 @@ message ChannelBalanceResponse {
 message CancelOrderRequest {
   // The local id of the order to cancel
   string order_id = 1 [json_name = "order_id"];
-  // The trading pair that the order to cancel is for
-  string pair_id = 2 [json_name = "pair_id"];
 }
 message CancelOrderResponse { }
 
@@ -162,14 +160,12 @@ message GetOrdersRequest {
   uint32 max_results = 2 [json_name = "max_results"];
 }
 message GetOrdersResponse {
-  // A list of peer orders
-  Orders peer_orders = 1 [json_name = "peer_orders"];
-  // A list of orders placed locally
-  Orders own_orders = 2 [json_name = "own_orders"];
+  // A map between a pair and its orders 
+  map<string, OrderTypes> orders = 1 [json_name = "orders"];
 }
 
-message GetPairsRequest {}
-message GetPairsResponse {
+message ListPairsRequest {}
+message ListPairsResponse {
   repeated Pair pairs = 1 [json_name = "pairs"];
 }
 
@@ -219,6 +215,13 @@ message Orders {
   repeated Order buy_orders = 1 [json_name = "buy_orders"];
   // A list of sell orders sorted by ascending price
   repeated Order sell_orders = 2 [json_name = "sell_orders"];
+}
+
+message OrderTypes {
+  // A list of peer orders
+  Orders peer_orders = 1 [json_name = "peer_orders"];
+  // A list of orders placed locally
+  Orders own_orders = 2 [json_name = "own_orders"];
 }
 
 message OrderMatch {

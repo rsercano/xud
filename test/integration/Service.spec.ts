@@ -55,15 +55,22 @@ describe('API Service', () => {
       maxResults: 0,
     };
     const orders = service.getOrders(args);
-    expect(orders.ownOrders.buyOrders).to.have.length(1);
-    expect(orders.ownOrders.buyOrders[0].price).to.equal(placeOrderArgs.price);
-    expect(orders.ownOrders.buyOrders[0].quantity).to.equal(placeOrderArgs.quantity);
-    expect(orders.ownOrders.buyOrders[0].pairId).to.equal(placeOrderArgs.pairId);
+
+    const pairOrders = orders.get(args.pairId);
+    expect(pairOrders).to.not.be.undefined;
+    const ownOrders = pairOrders!.ownOrders;
+    expect(ownOrders).to.not.be.undefined;
+
+    expect(ownOrders.buyOrders).to.have.length(1);
+
+    const order = ownOrders.buyOrders[0];
+    expect(order.price).to.equal(placeOrderArgs.price);
+    expect(order.quantity).to.equal(placeOrderArgs.quantity);
+    expect(order.pairId).to.equal(placeOrderArgs.pairId);
   });
 
   it('should cancel an order', async () => {
     const args = {
-      pairId: 'LTC/BTC',
       orderId: '1',
     };
     await expect(service.cancelOrder(args)).to.be.fulfilled;

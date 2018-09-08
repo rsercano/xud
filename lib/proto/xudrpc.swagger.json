@@ -203,12 +203,12 @@
     "/v1/pairs": {
       "get": {
         "summary": "Get the list of the order book's available pairs.",
-        "operationId": "GetPairs",
+        "operationId": "ListPairs",
         "responses": {
           "200": {
             "description": "",
             "schema": {
-              "$ref": "#/definitions/xudrpcGetPairsResponse"
+              "$ref": "#/definitions/xudrpcListPairsResponse"
             }
           }
         },
@@ -330,10 +330,6 @@
         "order_id": {
           "type": "string",
           "title": "The local id of the order to cancel"
-        },
-        "pair_id": {
-          "type": "string",
-          "title": "The trading pair that the order to cancel is for"
         }
       }
     },
@@ -436,17 +432,16 @@
     "xudrpcGetOrdersResponse": {
       "type": "object",
       "properties": {
-        "peer_orders": {
-          "$ref": "#/definitions/xudrpcOrders",
-          "title": "A list of peer orders"
-        },
-        "own_orders": {
-          "$ref": "#/definitions/xudrpcOrders",
-          "title": "A list of orders placed locally"
+        "orders": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/xudrpcOrderTypes"
+          },
+          "title": "A map between a pair and its orders"
         }
       }
     },
-    "xudrpcGetPairsResponse": {
+    "xudrpcListPairsResponse": {
       "type": "object",
       "properties": {
         "pairs": {
@@ -568,6 +563,19 @@
         },
         "taker": {
           "$ref": "#/definitions/xudrpcOrder"
+        }
+      }
+    },
+    "xudrpcOrderTypes": {
+      "type": "object",
+      "properties": {
+        "peer_orders": {
+          "$ref": "#/definitions/xudrpcOrders",
+          "title": "A list of peer orders"
+        },
+        "own_orders": {
+          "$ref": "#/definitions/xudrpcOrders",
+          "title": "A list of orders placed locally"
         }
       }
     },

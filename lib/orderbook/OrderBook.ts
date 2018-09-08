@@ -11,6 +11,7 @@ import { ms } from '../utils/utils';
 import { Models } from '../db/DB';
 import Swaps from '../swaps/Swaps';
 import { SwapDealRole } from '../types/enums';
+import { OrderIdentifier } from '../types/orders';
 
 /** A mapping of strings (such as pair ids) to [[Orders]] objects. */
 type OrdersMap = Map<string, Orders>;
@@ -46,12 +47,12 @@ class OrderBook extends EventEmitter {
 
   private repository: OrderBookRepository;
   /** A map between active trading pair ids and local buy and sell orders. */
-  private ownOrders: OrdersMap = new Map<string, Orders>();
+  private ownOrders = new Map<string, Orders>();
   /** A map between active trading pair ids and peer buy and sell orders. */
-  private peerOrders: OrdersMap = new Map<string, Orders>();
+  private peerOrders = new Map<string, Orders>();
 
-  /** A map between an order's local id and its global id. */
-  private localIdMap: Map<string, string> = new Map<string, string>();
+  /** A map between an order's local id and its global id and pair id. */
+  private localIdMap = new Map<string, OrderIdentifier>();
 
   constructor(private logger: Logger, models: Models, private pool?: Pool, private swaps?: Swaps) {
     super();
@@ -147,27 +148,23 @@ class OrderBook extends EventEmitter {
   }
 
   /**
-   * Removes an order from the order book by its local id. Throws an error if the specified pairId
-   * is not supported or if the order to cancel could not be found.
+   * Removes an order from the order book by its local id. Throws an error if the order to cancel could not be found.
    */
-  public removeOwnOrderByLocalId = (pairId: string, localId: string) => {
-    const orderId = this.localIdMap.get(localId);
+  public removeOwnOrderByLocalId = (localId: string) => {
+    const order = this.localIdMap.get(localId);
 
-    if (orderId === undefined) {
-      throw errors.INVALID_PAIR_ID(pairId);
+    if (!order) {
+      throw errors.ORDER_NOT_FOUND(localId);
     }
 
-    if (this.removeOwnOrder(pairId, orderId)) {
+    if (this.removeOwnOrder(order.pairId, order.orderId)) {
       this.localIdMap.delete(localId);
 
       if (this.pool) {
-        this.pool.broadcastOrderInvalidation({
-          orderId,
-          pairId,
-        });
+        this.pool.broadcastOrderInvalidation(order);
       }
     } else {
-      throw errors.ORDER_NOT_FOUND(orderId);
+      throw errors.ORDER_NOT_FOUND(localId);
     }
   }
 
@@ -319,7 +316,7 @@ class OrderBook extends EventEmitter {
   private addOrder = (ordersMap: OrdersMap, order: orders.StampedOrder) => {
     if (this.isOwnOrdersMap(ordersMap)) {
       const { localId } = order as orders.StampedOwnOrder;
-      this.localIdMap.set(localId, order.id);
+      this.localIdMap.set(localId, { orderId: order.id, pairId: order.pairId });
     }
 
     const orderMap = this.getOrderMap(ordersMap, order);

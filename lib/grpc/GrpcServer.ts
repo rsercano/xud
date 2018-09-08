@@ -1,6 +1,5 @@
 import grpc, { Server } from 'grpc';
 import assert from 'assert';
-import path from 'path';
 import Logger from '../Logger';
 import GrpcService from './GrpcService';
 import Service from '../service/Service';
@@ -23,7 +22,7 @@ class GrpcServer {
       executeSwap: grpcService.executeSwap,
       getInfo: grpcService.getInfo,
       getOrders: grpcService.getOrders,
-      getPairs: grpcService.getPairs,
+      listPairs: grpcService.listPairs,
       placeOrder: grpcService.placeOrder,
       shutdown: grpcService.shutdown,
       subscribePeerOrders: grpcService.subscribePeerOrders,
